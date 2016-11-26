@@ -1,5 +1,5 @@
 /* -*- C -*- */
-
+ 
 /* @copyright_notice_start
  *
  * This file is part of the CMU Hercules ground motion simulator developed
@@ -7544,7 +7544,17 @@ mesh_correct_properties( etree_t* cvm )
         	}
 
         	/* Default option for Qp */
-        	Qp = 2. * Qs;
+
+//        	if (edata->Vs < 2001 ) {
+//        		Qs = 40;
+//        		Qp = 120;
+//        	} else {
+//        		Qs = 70;
+//        		Qp = 160;
+//        	}
+
+        	Qp = Qs = 50;
+//        	Qp = 2. * Qs;
 
         	if (Param.useInfQk == YES) {
         	    Qk = 1000;
@@ -7673,7 +7683,7 @@ mesh_correct_properties( etree_t* cvm )
 
         		/*
         		 * Temporal Implementation of frequency dependent Q with:
-        		 * exponent = 0.8
+        		 * exponent = 0.6
         		 * f_max = 10 Hz (fixed)
         		 * f_o = 0.1 f_max = 1 Hz (fixed)
         		 */
@@ -7688,12 +7698,12 @@ mesh_correct_properties( etree_t* cvm )
                     edata->b_shear  = 0;
         	    } else {
                     edata->g0_shear =   0.002  * (2. * M_PI * 10);
-                    edata->g1_shear =   0.0116 * (2. * M_PI * 10);
-                    edata->g2_shear =   0.0798 * (2. * M_PI * 10);
-                    edata->a0_shear = (-2.809  * pow(Qs, -0.7919) + 1.512 ) / Qs;
-                    edata->a1_shear = (-1.748  * pow(Qs, -0.882 ) + 1.064 ) / Qs;
-                    edata->a2_shear = (-2.358  * pow(Qs, -1.725 ) + 1.581 ) / Qs;
-                    edata->b_shear  = ( 0.09232* pow(Qs, -0.8876) + 0.006941) / (Qs * (2. * M_PI * 10));
+                    edata->g1_shear =   0.0125 * (2. * M_PI * 10);
+                    edata->g2_shear =   0.0901 * (2. * M_PI * 10);
+                    edata->a0_shear = (-2.696  * pow(Qs, -0.7663) + 1.536 ) / Qs;
+                    edata->a1_shear = (-2.268  * pow(Qs, -0.9811 ) + 1.12 ) / Qs;
+                    edata->a2_shear = (-0.5756  * pow(Qs, -0.9606 ) + 1.566 ) / Qs;
+                    edata->b_shear  = ( 0.2767* pow(Qs, -1.392) + 0.1224) / (Qs * (2. * M_PI * 10));
         	    }
 
         	    if ( ( Param.useInfQk == YES ) || ( Qk >= 1000 ) ) {
@@ -7706,12 +7716,12 @@ mesh_correct_properties( etree_t* cvm )
                     edata->b_kappa  = 0;
         	    } else {
                     edata->g0_kappa =   0.002  * (2. * M_PI * 10);
-                    edata->g1_kappa =   0.0116 * (2. * M_PI * 10);
-                    edata->g2_kappa =   0.0798 * (2. * M_PI * 10);
-                    edata->a0_kappa = (-2.809  * pow(Qk, -0.7919) + 1.512 ) / Qk;
-                    edata->a1_kappa = (-1.748  * pow(Qk, -0.882 ) + 1.064 ) / Qk;
-                    edata->a2_kappa = (-2.358  * pow(Qk, -1.725 ) + 1.581 ) / Qk;
-                    edata->b_kappa  = ( 0.09232* pow(Qk, -0.8876) + 0.006941) / (Qk * (2. * M_PI * 10));
+                    edata->g1_kappa =   0.0125 * (2. * M_PI * 10);
+                    edata->g2_kappa =   0.0901 * (2. * M_PI * 10);
+                    edata->a0_kappa = (-2.696  * pow(Qk, -0.7663) + 1.536 ) / Qk;
+                    edata->a1_kappa = (-2.268  * pow(Qk, -0.9811 ) + 1.12 ) / Qk;
+                    edata->a2_kappa = (-0.5756  * pow(Qk, -0.9606 ) + 1.566 ) / Qk;
+                    edata->b_kappa  = ( 0.2767* pow(Qk, -1.392) + 0.1224) / (Qk * (2. * M_PI * 10));
         	    }
 
         	} else {
