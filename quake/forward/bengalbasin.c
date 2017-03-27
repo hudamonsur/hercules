@@ -151,18 +151,18 @@ cvmpayload_t getbasinvalues(double depth_m, double maxdepth){
 		vs = minvs;
 		density = mindensity/1000;
 	} else if ( (maxdepth > 0) && (maxdepth < 1500) ) {
-		vs = minvs
-		vp = 2.8 * vs
-		density = (float) mindensity
+		vs = minvs;
+		vp = 2.8 * vs;
+		density = (float) mindensity;
 
 	} else if ((maxdepth > 1500) && (maxdepth < 2000)) {
-		vs = 750
-		vp = 2.8 * vs
-		density = 2550
+		vs = 750;
+		vp = 2.8 * vs;
+		density = 2550;
 	} else if ((maxdepth > 2000) && (maxdepth < 2500)) {
-		vs = 1100
-		vp = 2.8 * vs
-		density = 2600
+		vs = 1100;
+		vp = 2.8 * vs;
+		density = 2600;
 
 	} else {
 		maxdepth = maxdepth*-1;
@@ -170,7 +170,7 @@ cvmpayload_t getbasinvalues(double depth_m, double maxdepth){
 		vp = 2.8 * vs;
 		density = (float)( 2600 + ( (maxdensity - 2600)*(depth_m - 2500) )/(maxdepth - 2500) );
 	}
-1
+
 	result.Vs = vs;
 	result.Vp = vp;
 	result.rho = density;
