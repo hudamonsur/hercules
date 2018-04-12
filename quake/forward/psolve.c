@@ -276,7 +276,7 @@ static struct Param_t {
     double   theQAlpha;
     double   theQBeta;
     noyesflag_t  useBengalBasin;
-    FILE*    theBengalBasinFP;
+    //FILE*    theBengalBasinFP;
 } Param = {
     .FourDOutFp = NULL,
     .theMonitorFileFp = NULL,
@@ -1518,7 +1518,8 @@ setrec( octant_t* leaf, double ticksize, void* data )
                 if ( (Param.useProfile == NO) && (Param.useBengalBasin == NO) ) {
                     res = cvm_query( Global.theCVMEp, y_m, x_m, z_m, &g_props );
                 } else if (Param.useBengalBasin == YES) {
-                    res = bengal_cvm_query(Param.theBengalBasinFP, y_m, x_m, z_m, &g_props);
+                    //res = bengal_cvm_query(Param.theBengalBasinFP, y_m, x_m, z_m, &g_props);
+                    res = bengal_cvm_query(y_m, x_m, z_m, &g_props);
                 } else {
                     res = profile_query(z_m, &g_props);
                 }
@@ -7469,7 +7470,8 @@ mesh_correct_properties( etree_t* cvm )
                     if ( (Param.useProfile == NO) && (Param.useBengalBasin == NO) ) {
                         res = cvm_query( Global.theCVMEp, east_m, north_m, depth_m, &g_props );
                     } else if ( Param.useBengalBasin == YES ) {
-                        res = bengal_cvm_query(Param.theBengalBasinFP, east_m, north_m, depth_m, &g_props);
+                        //res = bengal_cvm_query(Param.theBengalBasinFP, east_m, north_m, depth_m, &g_props);
+                        res = bengal_cvm_query(east_m, north_m, depth_m, &g_props);
                     } else {
                         res = profile_query(depth_m, &g_props);
                     }
@@ -7852,12 +7854,13 @@ int main( int argc, char** argv )
     } else if ( Param.useBengalBasin == YES ) {
 
         /* Opens the Bengal Basin surface file */
-        Param.theBengalBasinFP = fopen("inputfiles/bengalbasindepth.bin","rb");
-        if ( Param.theBengalBasinFP == NULL ) {
-            fprintf( stderr, "Unable to open Bengal Basin file!\n");
-            MPI_Abort(MPI_COMM_WORLD, ERROR );
-            exit( 1 );
-        }
+        // Param.theBengalBasinFP = fopen("inputfiles/bengalbasindepth.bin","rb");
+        // if ( Param.theBengalBasinFP == NULL ) {
+        //     fprintf( stderr, "Unable to open Bengal Basin file!\n");
+        //     MPI_Abort(MPI_COMM_WORLD, ERROR );
+        //     exit( 1 );
+        // }
+        initiate_layers();
 
     } else {
 
