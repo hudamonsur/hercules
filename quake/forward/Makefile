@@ -88,7 +88,7 @@ psolve_novis.o: psolve.o
 single_query: single_query.o q4.o
 
 output.o: output.c output.h psolve.h
-psolve.o: psolve.c psolve.h output.h quakesource.h nonlinear.h io_planes.h bengalbasin.h constants_bengalbasin.h \
+psolve.o: psolve.c psolve.h output.h quakesource.h nonlinear.h io_planes.h constants_bengalbasin.h bengalbasin.h \
           io_checkpoint.h stiffness.h damping.h quake_util.h timers.h buildings.h meshformatlab.h drm.h        
 quakesource.o: quakesource.c quakesource.h psolve.h
 
