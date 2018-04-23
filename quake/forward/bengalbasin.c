@@ -68,9 +68,25 @@ int bengal_cvm_query(double east_m, double north_m, double depth_m, cvmpayload_t
 
 	//puts("ingetdepth>>>>>>>3");
 	temp_result = computefinalvalues(bh_params, surface_params, bh_confidence);
-    result->Vp  = temp_result.Vp;
-    result->Vs  = temp_result.Vs;
-    result->rho = temp_result.rho;
+    if(DB==0){
+        result->Vp  = 100;
+        result->Vs  = 100;
+        result->rho = 100; 
+    }
+    if(DB==1){
+        result->Vp  = surface_params.Vp;
+        result->Vs  = surface_params.Vs;
+        result->rho = surface_params.rho;
+    }
+    if(DB==2){
+        result->Vp  = temp_result.Vp;
+        result->Vs  = temp_result.Vs;
+        result->rho = temp_result.rho;
+    }
+
+    //result->Vp  = temp_result.Vp;
+    //result->Vs  = temp_result.Vs;
+    //result->rho = temp_result.rho;
 
 	//puts("ingetdepth>>>>>>>4");
 	return 0;
