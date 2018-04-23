@@ -45,14 +45,14 @@ int bengal_cvm_query(double east_m, double north_m, double depth_m, cvmpayload_t
  //        puts("<<<<<<<<<<<<<< calculating borehole values>>>>>>>>>>>>>>>>>>>");
 	// };
 
-	double * bh_values;
-	cvmpayload_t bh_params;
-	//puts("ingetdepth>>>>>>>1");
-	bh_values = getboreholevalues(inputlat, inputlong, depth_m);
-	double bh_confidence = *(bh_values+0);
-	bh_params.Vs = *(bh_values+1);
-	bh_params.Vp = *(bh_values+2);
-	bh_params.rho = *(bh_values+3);
+	// double * bh_values;
+	// cvmpayload_t bh_params;
+	// //puts("ingetdepth>>>>>>>1");
+	// bh_values = getboreholevalues(inputlat, inputlong, depth_m);
+	// double bh_confidence = *(bh_values+0);
+	// bh_params.Vs = *(bh_values+1);
+	// bh_params.Vp = *(bh_values+2);
+	// bh_params.rho = *(bh_values+3);
 
 	// get Vs, Vp and rho from surfaces
 	// if (DEBUG==1){
@@ -60,25 +60,37 @@ int bengal_cvm_query(double east_m, double north_m, double depth_m, cvmpayload_t
 	// };
 
 	//puts("ingetdepth>>>>>>>2");
-	cvmpayload_t surface_params = getsurfacevalues(dlat, dlong, diflat, diflong, inputlat, inputlong, depth_m);
+	// cvmpayload_t surface_params = getsurfacevalues(dlat, dlong, diflat, diflong, inputlat, inputlong, depth_m);
  //    if (DEBUG==1){
  //        puts("<<<<<<<<<<<<<< calculating return values>>>>>>>>>>>>>>>>>>>");
 	// };
 	//temp_result = bh_params;
 
 	//puts("ingetdepth>>>>>>>3");
-	temp_result = computefinalvalues(bh_params, surface_params, bh_confidence);
     if(DB==0){
         result->Vp  = 100;
         result->Vs  = 100;
         result->rho = 100; 
     }
     if(DB==1){
+        cvmpayload_t surface_params = getsurfacevalues(dlat, dlong, diflat, diflong, inputlat, inputlong, depth_m);
         result->Vp  = surface_params.Vp;
         result->Vs  = surface_params.Vs;
         result->rho = surface_params.rho;
     }
     if(DB==2){
+
+        double * bh_values;
+        cvmpayload_t bh_params;
+        bh_values = getboreholevalues(inputlat, inputlong, depth_m);
+        double bh_confidence = *(bh_values+0);
+        bh_params.Vs = *(bh_values+1);
+        bh_params.Vp = *(bh_values+2);
+        bh_params.rho = *(bh_values+3);
+
+        cvmpayload_t surface_params = getsurfacevalues(dlat, dlong, diflat, diflong, inputlat, inputlong, depth_m);
+        temp_result = computefinalvalues(bh_params, surface_params, bh_confidence);
+
         result->Vp  = temp_result.Vp;
         result->Vs  = temp_result.Vs;
         result->rho = temp_result.rho;
