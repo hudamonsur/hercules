@@ -114,7 +114,7 @@ void initiate_layers(){
 //LAYERS[7].vpvsratio = 1.7; // ratio between P-wave and S-wave velocity of the Mantle
 FILE* fp_bengalbasin;
 FILE* fp_borehole;
-int DB = 0;
+int DB = 1;
 //int DEBUG = 0;
 
 //typedef struct loc {
