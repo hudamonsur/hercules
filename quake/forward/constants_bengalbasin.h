@@ -13,8 +13,8 @@ double DEGREETODIST = 111.01*1000; // degree to distance multiplier in meters
 
 //double SEDIMENTDEPTH = 100; // fixed sediment depth assumed for the model in meters
 double APPROXCRUSTTHICKNESS = 20000; // average approximated crustal thickness
-int BH_INFLUENCE = 20; // borehole influence distance.
-char BHNAMES_LIST[] = "borehole_list.txt";
+// int BH_INFLUENCE = 20; // borehole influence distance.
+// char BHNAMES_LIST[] = "borehole_list.txt";
 
 // typedef struct eq_constants
 // {
@@ -49,12 +49,12 @@ typedef struct layer_params {
     double minvs, maxvs, minrho, maxrho, vpvsratio, minage, maxage, constantk;
 } layer_params;
 
-typedef struct boreholes {
-    char * name;
-    double lattitude;
-    double longitude;
-    FILE * bh;
-} boreholes;
+// typedef struct boreholes {
+//     char * name;
+//     double lattitude;
+//     double longitude;
+//     FILE * bh;
+// } boreholes;
 
 int LAYER_NAMES[] = {
     1,
@@ -102,53 +102,53 @@ void initiate_layers(){
     }
 }
 
-boreholes BOREHOLE_INFO[55];
-void initiate_boreholes(){
-    FILE * fp_bengalbasin;
-    fp_bengalbasin = fopen(BHNAMES_LIST,"r");
-    int k=0;
-    if (!fp_bengalbasin)
-    {
-        printf("Unable to open borehole list!");
-    }
-    else {
-        while(!feof(fp_bengalbasin)) {
-            char str[60];
-            if( fgets (str, 60, fp_bengalbasin)!=NULL ) {
-            /* writing content to stdout */
-//                if(str[0]=='\n'){
-//                    linecount++;
-//                }
-                char *borehole_name = strtok(str, " ");
-                char *borehole_lat = strtok(NULL, " ");
-                char *borehole_long = strtok(NULL, " ");
-//                puts(borehole_name);
-//                puts(boreholeinfo[1]);
-                double borehole_latf =  atof(borehole_lat);
-                double borehole_longf =  atof(borehole_long);
+// boreholes BOREHOLE_INFO[55];
+// void initiate_boreholes(){
+//     FILE * fp_bengalbasin;
+//     fp_bengalbasin = fopen(BHNAMES_LIST,"r");
+//     int k=0;
+//     if (!fp_bengalbasin)
+//     {
+//         printf("Unable to open borehole list!");
+//     }
+//     else {
+//         while(!feof(fp_bengalbasin)) {
+//             char str[60];
+//             if( fgets (str, 60, fp_bengalbasin)!=NULL ) {
+//             /* writing content to stdout */
+// //                if(str[0]=='\n'){
+// //                    linecount++;
+// //                }
+//                 char *borehole_name = strtok(str, " ");
+//                 char *borehole_lat = strtok(NULL, " ");
+//                 char *borehole_long = strtok(NULL, " ");
+// //                puts(borehole_name);
+// //                puts(boreholeinfo[1]);
+//                 double borehole_latf =  atof(borehole_lat);
+//                 double borehole_longf =  atof(borehole_long);
 
-                BOREHOLE_INFO[k].name = (char*) malloc(60 * sizeof(char));
-                strcpy(BOREHOLE_INFO[k].name, borehole_name);
-                BOREHOLE_INFO[k].lattitude = borehole_latf;
-                BOREHOLE_INFO[k].longitude = borehole_longf;
+//                 BOREHOLE_INFO[k].name = (char*) malloc(60 * sizeof(char));
+//                 strcpy(BOREHOLE_INFO[k].name, borehole_name);
+//                 BOREHOLE_INFO[k].lattitude = borehole_latf;
+//                 BOREHOLE_INFO[k].longitude = borehole_longf;
 
-                char str1[] = ".txt";
-                strcat(borehole_name, str1);
-                BOREHOLE_INFO[k].bh = fopen(borehole_name,"r");
-                k++;
-            }
-        }
-    }
-    fclose(fp_bengalbasin);
+//                 char str1[] = ".txt";
+//                 strcat(borehole_name, str1);
+//                 BOREHOLE_INFO[k].bh = fopen(borehole_name,"r");
+//                 k++;
+//             }
+//         }
+//     }
+//     fclose(fp_bengalbasin);
 
-}
-void initiate_globals(){
-    initiate_layers();
-    // initiate_boreholes();
-    // initiate_equations();
+// }
+// void initiate_globals(){
+//     initiate_layers();
+//     // initiate_boreholes();
+//     // initiate_equations();
 
 
-}
+// }
 
 //LAYERS[0].minvs = 100; // minimum shear wave velocity of the quaternary sediment in meter/sec
 //LAYERS[0].maxvs = 500; // maximum shear wave velocity of the quaternary sediment in meter/sec

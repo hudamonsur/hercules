@@ -10,15 +10,15 @@
 
 cvmpayload_t getlayervalues(layer_params layer, double depth, double maxdepth, double mindepth);
 cvmpayload_t getlayervalues_sedirock(layer_params layer, double depth, double maxdepth, double mindepth);
-double * getboreholevalues(double inputlat, double inputlong, double depth);
+// double * getboreholevalues(double inputlat, double inputlong, double depth);
 cvmpayload_t getsurfacevalues(double dlat, double dlong, double diflat, double diflong, double inputlat, double inputlong, double depth, double ** surfaces);
 double getsurfacedepth(double dlat, double dlong, double diflong, double diflat, double east, double north, double ** surfaces, int i);
-cvmpayload_t getbhvalues(int id, double depth, double confidence);
-double sum_array(double array[], int size);
-cvmpayload_t computefinalvalues(cvmpayload_t bh_params, cvmpayload_t surface_params, double bh_confidence);
-double getbhconfidence(double bh_dist);
-double getbhdepthconfidence(double max_depth, double depth);
-double weighted_confidence(double array[], int size);
+// cvmpayload_t getbhvalues(int id, double depth, double confidence);
+// double sum_array(double array[], int size);
+// cvmpayload_t computefinalvalues(cvmpayload_t bh_params, cvmpayload_t surface_params, double bh_confidence);
+// double getbhconfidence(double bh_dist);
+// double getbhdepthconfidence(double max_depth, double depth);
+// double weighted_confidence(double array[], int size);
 
 int bengal_cvm_query(double east_m, double north_m, double depth_m, cvmpayload_t* result, double ** surfaces)
 {
@@ -40,49 +40,49 @@ int bengal_cvm_query(double east_m, double north_m, double depth_m, cvmpayload_t
         result->Vs  = 100;
         result->rho = 100; 
     }
-    if(DB==1){
+    else if(DB==1){
         cvmpayload_t surface_params = getsurfacevalues(dlat, dlong, diflat, diflong, inputlat, inputlong, depth_m, surfaces);
         result->Vp  = surface_params.Vp;
         result->Vs  = surface_params.Vs;
         result->rho = surface_params.rho;
     }
-    if(DB==2){
+    // if(DB==2){
 
-        double * bh_values;
-        cvmpayload_t bh_params;
-        bh_values = getboreholevalues(inputlat, inputlong, depth_m);
-        double bh_confidence = *(bh_values+0);
-        bh_params.Vs = *(bh_values+1);
-        bh_params.Vp = *(bh_values+2);
-        bh_params.rho = *(bh_values+3);
+    //     double * bh_values;
+    //     cvmpayload_t bh_params;
+    //     bh_values = getboreholevalues(inputlat, inputlong, depth_m);
+    //     double bh_confidence = *(bh_values+0);
+    //     bh_params.Vs = *(bh_values+1);
+    //     bh_params.Vp = *(bh_values+2);
+    //     bh_params.rho = *(bh_values+3);
 
-        cvmpayload_t surface_params = getsurfacevalues(dlat, dlong, diflat, diflong, inputlat, inputlong, depth_m, surfaces);
-        temp_result = computefinalvalues(bh_params, surface_params, bh_confidence);
+    //     cvmpayload_t surface_params = getsurfacevalues(dlat, dlong, diflat, diflong, inputlat, inputlong, depth_m, surfaces);
+    //     temp_result = computefinalvalues(bh_params, surface_params, bh_confidence);
 
-        result->Vp  = temp_result.Vp;
-        result->Vs  = temp_result.Vs;
-        result->rho = temp_result.rho;
-    }
+    //     result->Vp  = temp_result.Vp;
+    //     result->Vs  = temp_result.Vs;
+    //     result->rho = temp_result.rho;
+    // }
 
 	return 0;
 }
 
-cvmpayload_t computefinalvalues(cvmpayload_t bh_params, cvmpayload_t surface_params, double bh_confidence){
-    cvmpayload_t result;
+// cvmpayload_t computefinalvalues(cvmpayload_t bh_params, cvmpayload_t surface_params, double bh_confidence){
+//     cvmpayload_t result;
 
-    if(bh_params.Vs==0 && bh_params.Vp==0 && bh_params.rho==0){
-        result.rho = surface_params.rho;
-        result.Vp = surface_params.Vp;
-        result.Vs = surface_params.Vs;
-    }
-    else{
-        result.rho = bh_params.rho*bh_confidence + surface_params.rho*(1-bh_confidence);
-        result.Vp = bh_params.Vp*bh_confidence + surface_params.Vp*(1-bh_confidence);
-        result.Vs = bh_params.Vs*bh_confidence + surface_params.Vs*(1-bh_confidence);
-    }
+//     if(bh_params.Vs==0 && bh_params.Vp==0 && bh_params.rho==0){
+//         result.rho = surface_params.rho;
+//         result.Vp = surface_params.Vp;
+//         result.Vs = surface_params.Vs;
+//     }
+//     else{
+//         result.rho = bh_params.rho*bh_confidence + surface_params.rho*(1-bh_confidence);
+//         result.Vp = bh_params.Vp*bh_confidence + surface_params.Vp*(1-bh_confidence);
+//         result.Vs = bh_params.Vs*bh_confidence + surface_params.Vs*(1-bh_confidence);
+//     }
 
-	return result;
-}
+// 	return result;
+// }
 
 cvmpayload_t getsurfacevalues(double dlat, double dlong, double diflat, double diflong, double inputlat, double inputlong, double depth, double ** surfaces){
 
@@ -298,193 +298,193 @@ double getsurfacedepth(double dlat, double dlong, double diflong, double diflat,
     return value;
 }
 
-double * getboreholevalues(double inputlat, double inputlong, double depth){
+// double * getboreholevalues(double inputlat, double inputlong, double depth){
 
-    double bh_confidence_all[100];
-    double bh_vs[100];
-    double bh_vp[100];
-    double bh_rho[100];
-    double result[4];
-    double bh_confidence = 0;
-    double vs = 0;
-    double vp = 0;
-    double density = 0;
-    int bhnumbers = 0;
+//     double bh_confidence_all[100];
+//     double bh_vs[100];
+//     double bh_vp[100];
+//     double bh_rho[100];
+//     double result[4];
+//     double bh_confidence = 0;
+//     double vs = 0;
+//     double vp = 0;
+//     double density = 0;
+//     int bhnumbers = 0;
 
-    int i;
-    for(i=0;i<55;i++){
+//     int i;
+//     for(i=0;i<55;i++){
 
-        char * borehole_name = (char*) malloc(60 * sizeof(char));
-        strcpy(borehole_name,BOREHOLE_INFO[i].name);
-        double borehole_latf =  BOREHOLE_INFO[i].lattitude;
-        double borehole_longf =  BOREHOLE_INFO[i].longitude;
-        double borehole_dist = (sqrt(pow((borehole_latf-inputlat),2) + pow((borehole_longf-inputlong),2)))*111.01;
-                //double dist_lim = 100;
-        if(borehole_dist<BH_INFLUENCE){
-            double borehole_confidence = getbhconfidence(borehole_dist);
-            cvmpayload_t bh_values = getbhvalues(i, depth, borehole_confidence);
-            bh_confidence_all[bhnumbers] = borehole_confidence;
-            bh_rho[bhnumbers] = bh_values.rho;
-            bh_vp[bhnumbers] = bh_values.Vp;
-            bh_vs[bhnumbers] = bh_values.Vs;
-            bhnumbers++;
-        }
-        free(borehole_name);
-    }
+//         char * borehole_name = (char*) malloc(60 * sizeof(char));
+//         strcpy(borehole_name,BOREHOLE_INFO[i].name);
+//         double borehole_latf =  BOREHOLE_INFO[i].lattitude;
+//         double borehole_longf =  BOREHOLE_INFO[i].longitude;
+//         double borehole_dist = (sqrt(pow((borehole_latf-inputlat),2) + pow((borehole_longf-inputlong),2)))*111.01;
+//                 //double dist_lim = 100;
+//         if(borehole_dist<BH_INFLUENCE){
+//             double borehole_confidence = getbhconfidence(borehole_dist);
+//             cvmpayload_t bh_values = getbhvalues(i, depth, borehole_confidence);
+//             bh_confidence_all[bhnumbers] = borehole_confidence;
+//             bh_rho[bhnumbers] = bh_values.rho;
+//             bh_vp[bhnumbers] = bh_values.Vp;
+//             bh_vs[bhnumbers] = bh_values.Vs;
+//             bhnumbers++;
+//         }
+//         free(borehole_name);
+//     }
 
-    if(bhnumbers>0){
-        vs = sum_array(bh_vs,bhnumbers)/sum_array(bh_confidence_all,bhnumbers);
-        vp = sum_array(bh_vp,bhnumbers)/sum_array(bh_confidence_all,bhnumbers);
-        density = sum_array(bh_rho,bhnumbers)/sum_array(bh_confidence_all,bhnumbers);
-        bh_confidence = weighted_confidence(bh_confidence_all,bhnumbers);
-    }
+//     if(bhnumbers>0){
+//         vs = sum_array(bh_vs,bhnumbers)/sum_array(bh_confidence_all,bhnumbers);
+//         vp = sum_array(bh_vp,bhnumbers)/sum_array(bh_confidence_all,bhnumbers);
+//         density = sum_array(bh_rho,bhnumbers)/sum_array(bh_confidence_all,bhnumbers);
+//         bh_confidence = weighted_confidence(bh_confidence_all,bhnumbers);
+//     }
 
-    // if(DEBUG==1){
-    //     puts("borehole values:");
-    //     printf("%0.4f\n", vs);
-    //     printf("%0.4f\n", vp);
-    //     printf("%0.4f\n", density);
-    //     printf("%0.4f\n", bh_confidence);
-    // }
+//     // if(DEBUG==1){
+//     //     puts("borehole values:");
+//     //     printf("%0.4f\n", vs);
+//     //     printf("%0.4f\n", vp);
+//     //     printf("%0.4f\n", density);
+//     //     printf("%0.4f\n", bh_confidence);
+//     // }
 
-    result[0] = bh_confidence;
-    result[1] = vs;
-    result[2] = vp;
-    result[3] = density;
-    //puts("<<<<<<<<borehole values calculated>>>>>>");
+//     result[0] = bh_confidence;
+//     result[1] = vs;
+//     result[2] = vp;
+//     result[3] = density;
+//     //puts("<<<<<<<<borehole values calculated>>>>>>");
 
-//  free(bh_names);
-    return result;
-}
+// //  free(bh_names);
+//     return result;
+// }
 
-double getbhconfidence(double bh_dist){
+// double getbhconfidence(double bh_dist){
 
-    double value = (pow((bh_dist/(BH_INFLUENCE/2)),3))*-1;
-    double bh_confidence = exp(value);
-    return bh_confidence;
+//     double value = (pow((bh_dist/(BH_INFLUENCE/2)),3))*-1;
+//     double bh_confidence = exp(value);
+//     return bh_confidence;
 
-}
+// }
 
-double weighted_confidence(double array[], int size){
-    double confidence = 0;
-    int i = 0;
-    double conf[size];
-    for(;i<size;i++){
-        conf[i] = array[i]*array[i];
-    }
-    confidence = sum_array(conf,size)/sum_array(array,size);
-    return confidence;
-}
+// double weighted_confidence(double array[], int size){
+//     double confidence = 0;
+//     int i = 0;
+//     double conf[size];
+//     for(;i<size;i++){
+//         conf[i] = array[i]*array[i];
+//     }
+//     confidence = sum_array(conf,size)/sum_array(array,size);
+//     return confidence;
+// }
 
-double sum_array(double array[], int size){
-    double sum = 0; // initialize sum
+// double sum_array(double array[], int size){
+//     double sum = 0; // initialize sum
 
-    // Iterate through all elements
-    // and add them to sum
-    int i = 0;
-    for (;i<size;i++){
-        sum += array[i];
-    }
+//     // Iterate through all elements
+//     // and add them to sum
+//     int i = 0;
+//     for (;i<size;i++){
+//         sum += array[i];
+//     }
 
-    return sum;
+//     return sum;
 
-}
+// }
 
-double getbhdepthconfidence(double max_depth, double depth){
+// double getbhdepthconfidence(double max_depth, double depth){
 
-    double value = (pow((depth/(max_depth/2)),3))*-1;
-    double bh_confidence = exp(value);
-    return bh_confidence;
+//     double value = (pow((depth/(max_depth/2)),3))*-1;
+//     double bh_confidence = exp(value);
+//     return bh_confidence;
 
-}
+// }
 
-cvmpayload_t getbhvalues(int id, double depth, double confidence){
+// cvmpayload_t getbhvalues(int id, double depth, double confidence){
 
-    cvmpayload_t result;
-    cvmpayload_t tmp_result;
-    int layer_id[15];
-//    char ** name_layers = (char**) malloc(600 * sizeof(char*));
-    double layer_depth[15];
-    int layercount = 0;
-//    if (DEBUG==1){
-//        puts("<<<<<<<<<<<<<< opening borehole file >>>>>>>>>>>>>>>>>>>");
-//  };
-//    puts(BOREHOLE_INFO[id].name);
-    rewind(BOREHOLE_INFO[id].bh);
-    fp_borehole = BOREHOLE_INFO[id].bh;
-    if(!fp_borehole){
-        printf("Borehole file does not exist!");
-    }
-    else{
-        while(!feof(fp_borehole)){
-               char str[60];
-               if( fgets (str, 60, fp_borehole)!=NULL ){
-                    char *str1 = strtok(str, " ");
-                    char *depth = strtok(NULL, " ");
-                    double lr_depth = atof(depth);
-                    int lr_id = atoi(str1);
-//                    char * lr_name = (char*) malloc(60 * sizeof(char));
-//                    strcpy(lr_name, str1);
-//                    printf("%d %f\n", lr_id, lr_depth);
-//                    name_layers[layercount] = lr_name;
-                    layer_id[layercount] = lr_id;
-                    layer_depth[layercount] = lr_depth;
-                    layercount++;
-//                    free(lr_name);
-               }
-        }
-    }
-//    printf("%s %d\n", "number of layers in the borehole file:", layercount);
-    double depthconfidence = getbhdepthconfidence(layer_depth[0], depth);
-    if(depth==0){
-        tmp_result = getlayervalues(LAYERS[0], depth, layer_depth[layercount-1], 0);
-    }
-    else{
-        int i = 1;
-        int lr_id=0;
-        if(depth>layer_depth[0]){
-            tmp_result.rho = 0;
-            tmp_result.Vp = 0;
-            tmp_result.Vs = 0;
-        }
-        else{
-            for(;i<layercount;i++){
-                if(depth>layer_depth[i]){
-                    lr_id = i;
-//                    printf("layer id: %d\n", lr_id);
-                    //puts("<<<<<<<<< borehole layer determination loop breaks >>>>>>>>");
-                    break;
-                }
-                //break;
-            }
-            int j = 0;
-            int layer_number=-1;
-            //puts("<<>>>>>>>>>><<<<<<<<<>>>>>>>>>>>");
-            for(;j<BIN_COUNT;j++){
-//                puts(LAYER_NAMES[j]);
-//                puts(name_layers[lr_id]);
-//                int a = strcasecmp(LAYER_NAMES[j],name_layers[lr_id]);
-                if(LAYER_NAMES[j]==layer_id[lr_id]){
-                    layer_number = j;
-                    break;
-                }
-//                printf("%s %d\n", "Layer number:", layer_number);
+//     cvmpayload_t result;
+//     cvmpayload_t tmp_result;
+//     int layer_id[15];
+// //    char ** name_layers = (char**) malloc(600 * sizeof(char*));
+//     double layer_depth[15];
+//     int layercount = 0;
+// //    if (DEBUG==1){
+// //        puts("<<<<<<<<<<<<<< opening borehole file >>>>>>>>>>>>>>>>>>>");
+// //  };
+// //    puts(BOREHOLE_INFO[id].name);
+//     rewind(BOREHOLE_INFO[id].bh);
+//     fp_borehole = BOREHOLE_INFO[id].bh;
+//     if(!fp_borehole){
+//         printf("Borehole file does not exist!");
+//     }
+//     else{
+//         while(!feof(fp_borehole)){
+//                char str[60];
+//                if( fgets (str, 60, fp_borehole)!=NULL ){
+//                     char *str1 = strtok(str, " ");
+//                     char *depth = strtok(NULL, " ");
+//                     double lr_depth = atof(depth);
+//                     int lr_id = atoi(str1);
+// //                    char * lr_name = (char*) malloc(60 * sizeof(char));
+// //                    strcpy(lr_name, str1);
+// //                    printf("%d %f\n", lr_id, lr_depth);
+// //                    name_layers[layercount] = lr_name;
+//                     layer_id[layercount] = lr_id;
+//                     layer_depth[layercount] = lr_depth;
+//                     layercount++;
+// //                    free(lr_name);
+//                }
+//         }
+//     }
+// //    printf("%s %d\n", "number of layers in the borehole file:", layercount);
+//     double depthconfidence = getbhdepthconfidence(layer_depth[0], depth);
+//     if(depth==0){
+//         tmp_result = getlayervalues(LAYERS[0], depth, layer_depth[layercount-1], 0);
+//     }
+//     else{
+//         int i = 1;
+//         int lr_id=0;
+//         if(depth>layer_depth[0]){
+//             tmp_result.rho = 0;
+//             tmp_result.Vp = 0;
+//             tmp_result.Vs = 0;
+//         }
+//         else{
+//             for(;i<layercount;i++){
+//                 if(depth>layer_depth[i]){
+//                     lr_id = i;
+// //                    printf("layer id: %d\n", lr_id);
+//                     //puts("<<<<<<<<< borehole layer determination loop breaks >>>>>>>>");
+//                     break;
+//                 }
+//                 //break;
+//             }
+//             int j = 0;
+//             int layer_number=-1;
+//             //puts("<<>>>>>>>>>><<<<<<<<<>>>>>>>>>>>");
+//             for(;j<BIN_COUNT;j++){
+// //                puts(LAYER_NAMES[j]);
+// //                puts(name_layers[lr_id]);
+// //                int a = strcasecmp(LAYER_NAMES[j],name_layers[lr_id]);
+//                 if(LAYER_NAMES[j]==layer_id[lr_id]){
+//                     layer_number = j;
+//                     break;
+//                 }
+// //                printf("%s %d\n", "Layer number:", layer_number);
 
-            }
-//            puts(LAYER_NAMES[layer_number]);
-//            if(layer_number<0){layer_number = 5;}
-//            printf("%s %d %s %f %s %f %s %f %s %f\n", "Layer number:", layer_number, "input depth:", depth, "maximum depth:", layer_depth[lr_id-1], "minimum depth:", layer_depth[lr_id], "Confidence", confidence);
-            // if(DEBUG==1){
-            //    printf("%s %d %s %f %s %f %s %f %s %f\n", "Layer number:", layer_number, "input depth:", depth, "maximum depth:", layer_depth[lr_id-1], "minimum depth:", layer_depth[lr_id], "Confidence", confidence);
-            // }
-            tmp_result = getlayervalues(LAYERS[layer_number], depth, layer_depth[lr_id-1], layer_depth[lr_id]);
-        }
+//             }
+// //            puts(LAYER_NAMES[layer_number]);
+// //            if(layer_number<0){layer_number = 5;}
+// //            printf("%s %d %s %f %s %f %s %f %s %f\n", "Layer number:", layer_number, "input depth:", depth, "maximum depth:", layer_depth[lr_id-1], "minimum depth:", layer_depth[lr_id], "Confidence", confidence);
+//             // if(DEBUG==1){
+//             //    printf("%s %d %s %f %s %f %s %f %s %f\n", "Layer number:", layer_number, "input depth:", depth, "maximum depth:", layer_depth[lr_id-1], "minimum depth:", layer_depth[lr_id], "Confidence", confidence);
+//             // }
+//             tmp_result = getlayervalues(LAYERS[layer_number], depth, layer_depth[lr_id-1], layer_depth[lr_id]);
+//         }
 
-    }
+//     }
 
-    result.rho = confidence*tmp_result.rho;
-    result.Vs = confidence*tmp_result.Vs;
-    result.Vp = confidence*tmp_result.Vp;
-//    free(name_layers);
-    return result;
-}
+//     result.rho = confidence*tmp_result.rho;
+//     result.Vs = confidence*tmp_result.Vs;
+//     result.Vp = confidence*tmp_result.Vp;
+// //    free(name_layers);
+//     return result;
+// }
