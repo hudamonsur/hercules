@@ -184,3 +184,15 @@ ifeq ($(SYSTEM), MAVERICKS)
 	CFLAGS      += -Wall
 	CPPFLAGS    += -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
 endif
+
+ifeq ($(SYSTEM), XK7CPU)
+        CC      = cc
+        CXX     = CC
+        LD      = CC
+        CFLAGS  += -DBIGBEN 
+        LDFLAGS += -Wl,-zmuldefs
+        ifdef IOBUF_INC
+            CPPFLAGS += -I${IOBUF_INC}
+        endif        
+        CPPFLAGS    += -D_USE_FILE_OFFSET64 -D_FILE_OFFSET_BITS=64 -D_USE_LARGEFILE64
+endif
