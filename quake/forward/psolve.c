@@ -7853,7 +7853,7 @@ int main( int argc, char** argv )
         load_profile( Param.parameters_input_file );
 
     } else if ( Param.useBengalBasin == YES ) {
-
+// Our point
         /* Opens the Bengal Basin surface files and loads the values of the surfaces and boreholes */
         initiate_layers();
         int i;
@@ -7876,6 +7876,7 @@ int main( int argc, char** argv )
             Param.surfaces[i] = (double *)malloc(colcount * sizeof(double));
         };
 
+        printf("debug 1 >>");
         for(i=0;i<rowcount;i++){
             FILE *contourFiles;
             contourFiles = fopen(binFileNames[i], "rb");
