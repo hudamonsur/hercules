@@ -276,7 +276,7 @@ static struct Param_t {
     double   theQAlpha;
     double   theQBeta;
     noyesflag_t  useBengalBasin;
-    double** surfaces
+    double** surfaces;
     //FILE*    theBengalBasinFP;
 } Param = {
     .FourDOutFp = NULL,
@@ -385,8 +385,8 @@ monitor_print( const char* format, ... )
 
 static void read_parameters( int argc, char** argv ){
 
-#define LOCAL_INIT_DOUBLE_MESSAGE_LENGTH 21  /* Must adjust this if adding double params */
-#define LOCAL_INIT_INT_MESSAGE_LENGTH 23     /* Must adjust this if adding int params */
+    #define LOCAL_INIT_DOUBLE_MESSAGE_LENGTH 21  /* Must adjust this if adding double params */
+    #define LOCAL_INIT_INT_MESSAGE_LENGTH 23     /* Must adjust this if adding int params */
 
     double  double_message[LOCAL_INIT_DOUBLE_MESSAGE_LENGTH];
     int     int_message[LOCAL_INIT_INT_MESSAGE_LENGTH];
@@ -2175,37 +2175,37 @@ mesh_generate()
 
 /// our point 2
         /* Refinement */
-        fprintf(stdout,"%d debug 1>>\n", mstep);
+        //fprintf(stdout,"%d debug 1>>\n", mstep);
         Timer_Start("Octor Refinetree");
-        fprintf(stdout,"%d debug 2>>\n", mstep);
+        //fprintf(stdout,"%d debug 2>>\n", mstep);
         if (Global.myID == 0) {
             fprintf(stdout, "Refining     ");
-            fprintf(stdout,"%d debug 3>>\n", mstep);
+            //fprintf(stdout,"%d debug 3>>\n", mstep);
             fflush(stdout);
-            fprintf(stdout,"%d debug 4>>\n", mstep);
+            //fprintf(stdout,"%d debug 4>>\n", mstep);
         }
         if (octor_refinetree(Global.myOctree, toexpand, setrec) != 0) {
             fprintf(stderr, "Thread %d: mesh_generate: fail to refine octree\n",Global.myID);
             MPI_Abort(MPI_COMM_WORLD, ERROR); exit(1);
         }
-        fprintf(stdout,"%d debug 5>>\n", mstep);
+        //fprintf(stdout,"%d debug 5>>\n", mstep);
 
         /////
         MPI_Barrier(comm_solver);
-        fprintf(stdout,"%d debug 6>>\n", mstep);
+        //fprintf(stdout,"%d debug 6>>\n", mstep);
         tote = octor_getleavescount(Global.myOctree, GLOBAL);
-        fprintf(stdout,"%d debug 7>>\n", mstep);
+        //fprintf(stdout,"%d debug 7>>\n", mstep);
         mine = octor_getminleavescount(Global.myOctree, GLOBAL);
-        fprintf(stdout,"%d debug 8>>\n", mstep);
+        //fprintf(stdout,"%d debug 8>>\n", mstep);
         maxe = octor_getmaxleavescount(Global.myOctree, GLOBAL);
-        fprintf(stdout,"%d debug 9>>\n", mstep);
+        //fprintf(stdout,"%d debug 9>>\n", mstep);
         if (Global.myID == 0) {
             fprintf(stdout, "%11"INT64_FMT" %11"INT64_FMT" %11"INT64_FMT, mine, maxe, tote);
             fflush(stdout);
         }
-        fprintf(stdout,"%d debug 10>>\n", mstep);
+        //fprintf(stdout,"%d debug 10>>\n", mstep);
         Timer_Stop("Octor Refinetree");
-        fprintf(stdout,"%d debug 11>>\n", mstep);
+        //fprintf(stdout,"%d debug 11>>\n", mstep);
         if (Global.myID == 0) {
             fprintf(stdout, "%11.2f", Timer_Value("Octor Refinetree", 0) - prevtref);
             if (Param.theStepMeshingFactor == 0 ) {
@@ -2213,10 +2213,10 @@ mesh_generate()
             } else {
                 fprintf(stdout, "   %4d %6.2f\n", step, Param.theFactor/ppwl);
             }
-            fprintf(stdout,"%d debug 12>>\n", mstep);
+            //fprintf(stdout,"%d debug 12>>\n", mstep);
             prevtref = Timer_Value("Octor Refinetree", 0);
             fflush(stdout);
-            fprintf(stdout,"%d debug 13>>\n", mstep);
+            //fprintf(stdout,"%d debug 13>>\n", mstep);
         }
 
         /////
@@ -7808,58 +7808,14 @@ int main( int argc, char** argv )
     MPI_Status status;
 #endif /* DEBUG */
 
-
-
-  
-        initiate_layers();
-        int i;
-        int j;
-        const char * binFileNames[] = {
-        "depth_sediment.bin",
-        "depth_dupitila.bin",
-        "depth_tipam.bin",
-        "depth_bokabil.bin",
-        "depth_bhuban.bin",
-        "depth_precambrian.bin",
-        "depth_moho.bin",
-        };
-
-        int colcount = 2000*2000;
-        int rowcount = 7;
-        Param.surfaces = (double **)malloc(rowcount * sizeof(double *));
-
-        for(i=0;i<rowcount;i++){
-            Param.surfaces[i] = (double *)malloc(colcount * sizeof(double));
-        };
-
-        printf("debug 1 >>");
-        for(i=0;i<rowcount;i++){
-            FILE *contourFiles;
-            contourFiles = fopen(binFileNames[i], "rb");
-            if (!contourFiles){
-                printf("Unable to open binary files!");
-                MPI_Abort(MPI_COMM_WORLD, ERROR );
-                exit( 1 );
-            }
-            for(j=0;j<colcount;j++){
-                fread(&Param.surfaces[i][j], sizeof(double), 1, contourFiles);
-            }
-            fclose(contourFiles);
-        }  
-
-
-
-
-
-
-
-
     /* MPI initialization */
     MPI_Init(&argc, &argv);
     Timer_Start("Total Wall Clock");
     MPI_Barrier(MPI_COMM_WORLD);
     MPI_Comm_rank(MPI_COMM_WORLD, &Global.myID);
     MPI_Comm_size(MPI_COMM_WORLD, &Global.theGroupSize);
+
+    MPI_Barrier(MPI_COMM_WORLD);
 
     /* Make sure using correct input arguments */
     if (argc != 2) {
@@ -7916,44 +7872,44 @@ int main( int argc, char** argv )
         /* Read profile to memory */
         load_profile( Param.parameters_input_file );
 
-    } else if ( Param.useBengalBasin == YES ) {
+    } else if ( Param.useBengalBasin == YES) {
 // Our point
         /* Opens the Bengal Basin surface files and loads the values of the surfaces and boreholes */
-        // initiate_layers();
-        // int i;
-        // int j;
-        // const char * binFileNames[] = {
-        // "depth_sediment.bin",
-        // "depth_dupitila.bin",
-        // "depth_tipam.bin",
-        // "depth_bokabil.bin",
-        // "depth_bhuban.bin",
-        // "depth_precambrian.bin",
-        // "depth_moho.bin",
-        // };
+        initiate_layers();
+        int i;
+        int j;
+        const char * binFileNames[] = {
+        "depth_sediment.bin",
+        "depth_dupitila.bin",
+        "depth_tipam.bin",
+        "depth_bokabil.bin",
+        "depth_bhuban.bin",
+        "depth_precambrian.bin",
+        "depth_moho.bin",
+        };
 
-        // int colcount = 2000*2000;
-        // int rowcount = 7;
-        // Param.surfaces = (double **)malloc(rowcount * sizeof(double *));
+        int colcount = 2000*2000;
+        int rowcount = 7;
+        Param.surfaces = (double **)malloc(rowcount * sizeof(double *));
 
-        // for(i=0;i<rowcount;i++){
-        //     Param.surfaces[i] = (double *)malloc(colcount * sizeof(double));
-        // };
+        for(i=0;i<rowcount;i++){
+            Param.surfaces[i] = (double *)malloc(colcount * sizeof(double));
+        };
 
-        // printf("debug 1 >>");
-        // for(i=0;i<rowcount;i++){
-        //     FILE *contourFiles;
-        //     contourFiles = fopen(binFileNames[i], "rb");
-        //     if (!contourFiles){
-        //         printf("Unable to open binary files!");
-        //         MPI_Abort(MPI_COMM_WORLD, ERROR );
-        //         exit( 1 );
-        //     }
-        //     for(j=0;j<colcount;j++){
-        //         fread(&Param.surfaces[i][j], sizeof(double), 1, contourFiles);
-        //     }
-        //     fclose(contourFiles);
-        // }
+        //printf("debug 1 >>");
+        for(i=0;i<rowcount;i++){
+            FILE *contourFiles;
+            contourFiles = fopen(binFileNames[i], "rb");
+            if (!contourFiles){
+                printf("Unable to open binary files!");
+                MPI_Abort(MPI_COMM_WORLD, ERROR );
+                exit( 1 );
+            }
+            for(j=0;j<colcount;j++){
+                fread(&Param.surfaces[i][j], sizeof(double), 1, contourFiles);
+            }
+            fclose(contourFiles);
+        }
         // Param.theBengalBasinFP = fopen("inputfiles/bengalbasindepth.bin","rb");
         // if ( Param.theBengalBasinFP == NULL ) {
         //     fprintf( stderr, "Unable to open Bengal Basin file!\n");
@@ -7962,7 +7918,6 @@ int main( int argc, char** argv )
         // }
 
         ;
-
     } else {
 
         /* Create and open database */
