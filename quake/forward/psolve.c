@@ -7872,7 +7872,7 @@ int main( int argc, char** argv )
         /* Read profile to memory */
         load_profile( Param.parameters_input_file );
 
-    } else if ( Param.useBengalBasin == YES) {
+    } else if ( Param.useBengalBasin == YES && Global.myID == 0) {
 // Our point
         /* Opens the Bengal Basin surface files and loads the values of the surfaces and boreholes */
         initiate_layers();
