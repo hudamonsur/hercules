@@ -2175,37 +2175,37 @@ mesh_generate()
 
 /// our point 2
         /* Refinement */
-        fprintf(stdout,"debug 1>>\n");
+        fprintf(stdout,"%d debug 1>>\n", mstep);
         Timer_Start("Octor Refinetree");
-        fprintf(stdout,"debug 2>>\n");
+        fprintf(stdout,"%d debug 2>>\n", mstep);
         if (Global.myID == 0) {
             fprintf(stdout, "Refining     ");
-            fprintf(stdout,"debug 3>>\n");
+            fprintf(stdout,"%d debug 3>>\n", mstep);
             fflush(stdout);
-            printf(stdout,"debug 4>>\n");
+            fprintf(stdout,"%d debug 4>>\n", mstep);
         }
         if (octor_refinetree(Global.myOctree, toexpand, setrec) != 0) {
             fprintf(stderr, "Thread %d: mesh_generate: fail to refine octree\n",Global.myID);
             MPI_Abort(MPI_COMM_WORLD, ERROR); exit(1);
         }
-        fprintf(stdout,"debug 5>>\n");
+        fprintf(stdout,"%d debug 5>>\n", mstep);
 
         /////
         MPI_Barrier(comm_solver);
-        fprintf(stdout,"debug 6>>\n");
+        fprintf(stdout,"%d debug 6>>\n", mstep);
         tote = octor_getleavescount(Global.myOctree, GLOBAL);
-        fprintf(stdout,"debug 7>>\n");
+        fprintf(stdout,"%d debug 7>>\n", mstep);
         mine = octor_getminleavescount(Global.myOctree, GLOBAL);
-        fprintf(stdout,"debug 8>>\n");
+        fprintf(stdout,"%d debug 8>>\n", mstep);
         maxe = octor_getmaxleavescount(Global.myOctree, GLOBAL);
-        fprintf(stdout,"debug 9>>\n");
+        fprintf(stdout,"%d debug 9>>\n", mstep);
         if (Global.myID == 0) {
             fprintf(stdout, "%11"INT64_FMT" %11"INT64_FMT" %11"INT64_FMT, mine, maxe, tote);
             fflush(stdout);
         }
-        printf(stdout,"debug 10>>\n");
+        fprintf(stdout,"%d debug 10>>\n", mstep);
         Timer_Stop("Octor Refinetree");
-        printf(stdout,"debug 11>>\n");
+        fprintf(stdout,"%d debug 11>>\n", mstep);
         if (Global.myID == 0) {
             fprintf(stdout, "%11.2f", Timer_Value("Octor Refinetree", 0) - prevtref);
             if (Param.theStepMeshingFactor == 0 ) {
@@ -2213,10 +2213,10 @@ mesh_generate()
             } else {
                 fprintf(stdout, "   %4d %6.2f\n", step, Param.theFactor/ppwl);
             }
-            printf(stdout,"debug 12>>\n");
+            fprintf(stdout,"%d debug 12>>\n", mstep);
             prevtref = Timer_Value("Octor Refinetree", 0);
             fflush(stdout);
-            printf(stdout,"debug 13>>\n");
+            fprintf(stdout,"%d debug 13>>\n", mstep);
         }
 
         /////
