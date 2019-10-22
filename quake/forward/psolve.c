@@ -7808,6 +7808,52 @@ int main( int argc, char** argv )
     MPI_Status status;
 #endif /* DEBUG */
 
+
+
+  
+        initiate_layers();
+        int i;
+        int j;
+        const char * binFileNames[] = {
+        "depth_sediment.bin",
+        "depth_dupitila.bin",
+        "depth_tipam.bin",
+        "depth_bokabil.bin",
+        "depth_bhuban.bin",
+        "depth_precambrian.bin",
+        "depth_moho.bin",
+        };
+
+        int colcount = 2000*2000;
+        int rowcount = 7;
+        Param.surfaces = (double **)malloc(rowcount * sizeof(double *));
+
+        for(i=0;i<rowcount;i++){
+            Param.surfaces[i] = (double *)malloc(colcount * sizeof(double));
+        };
+
+        printf("debug 1 >>");
+        for(i=0;i<rowcount;i++){
+            FILE *contourFiles;
+            contourFiles = fopen(binFileNames[i], "rb");
+            if (!contourFiles){
+                printf("Unable to open binary files!");
+                MPI_Abort(MPI_COMM_WORLD, ERROR );
+                exit( 1 );
+            }
+            for(j=0;j<colcount;j++){
+                fread(&Param.surfaces[i][j], sizeof(double), 1, contourFiles);
+            }
+            fclose(contourFiles);
+        }  
+
+
+
+
+
+
+
+
     /* MPI initialization */
     MPI_Init(&argc, &argv);
     Timer_Start("Total Wall Clock");
@@ -7873,41 +7919,41 @@ int main( int argc, char** argv )
     } else if ( Param.useBengalBasin == YES ) {
 // Our point
         /* Opens the Bengal Basin surface files and loads the values of the surfaces and boreholes */
-        initiate_layers();
-        int i;
-        int j;
-        const char * binFileNames[] = {
-        "depth_sediment.bin",
-        "depth_dupitila.bin",
-        "depth_tipam.bin",
-        "depth_bokabil.bin",
-        "depth_bhuban.bin",
-        "depth_precambrian.bin",
-        "depth_moho.bin",
-        };
+        // initiate_layers();
+        // int i;
+        // int j;
+        // const char * binFileNames[] = {
+        // "depth_sediment.bin",
+        // "depth_dupitila.bin",
+        // "depth_tipam.bin",
+        // "depth_bokabil.bin",
+        // "depth_bhuban.bin",
+        // "depth_precambrian.bin",
+        // "depth_moho.bin",
+        // };
 
-        int colcount = 2000*2000;
-        int rowcount = 7;
-        Param.surfaces = (double **)malloc(rowcount * sizeof(double *));
+        // int colcount = 2000*2000;
+        // int rowcount = 7;
+        // Param.surfaces = (double **)malloc(rowcount * sizeof(double *));
 
-        for(i=0;i<rowcount;i++){
-            Param.surfaces[i] = (double *)malloc(colcount * sizeof(double));
-        };
+        // for(i=0;i<rowcount;i++){
+        //     Param.surfaces[i] = (double *)malloc(colcount * sizeof(double));
+        // };
 
-        printf("debug 1 >>");
-        for(i=0;i<rowcount;i++){
-            FILE *contourFiles;
-            contourFiles = fopen(binFileNames[i], "rb");
-            if (!contourFiles){
-                printf("Unable to open binary files!");
-                MPI_Abort(MPI_COMM_WORLD, ERROR );
-                exit( 1 );
-            }
-            for(j=0;j<colcount;j++){
-                fread(&Param.surfaces[i][j], sizeof(double), 1, contourFiles);
-            }
-            fclose(contourFiles);
-        }
+        // printf("debug 1 >>");
+        // for(i=0;i<rowcount;i++){
+        //     FILE *contourFiles;
+        //     contourFiles = fopen(binFileNames[i], "rb");
+        //     if (!contourFiles){
+        //         printf("Unable to open binary files!");
+        //         MPI_Abort(MPI_COMM_WORLD, ERROR );
+        //         exit( 1 );
+        //     }
+        //     for(j=0;j<colcount;j++){
+        //         fread(&Param.surfaces[i][j], sizeof(double), 1, contourFiles);
+        //     }
+        //     fclose(contourFiles);
+        // }
         // Param.theBengalBasinFP = fopen("inputfiles/bengalbasindepth.bin","rb");
         // if ( Param.theBengalBasinFP == NULL ) {
         //     fprintf( stderr, "Unable to open Bengal Basin file!\n");
