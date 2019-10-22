@@ -7815,7 +7815,7 @@ int main( int argc, char** argv )
     MPI_Comm_rank(MPI_COMM_WORLD, &Global.myID);
     MPI_Comm_size(MPI_COMM_WORLD, &Global.theGroupSize);
 
-    MPI_Barrier(MPI_COMM_WORLD);
+    printf("debug: %d\n", Global.myID);
 
     /* Make sure using correct input arguments */
     if (argc != 2) {
