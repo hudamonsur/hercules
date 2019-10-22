@@ -2168,30 +2168,44 @@ mesh_generate()
     }
 #endif
 
-    for ( mstep = Param.theStepMeshingFactor; mstep >= 0; mstep-- ) {
+    for ( mstep = Param.theStepMeshingFactor; mstep >= 0; mstep-- ) {  //main loop *************************************************
 
         double myFactor = (double)(1 << mstep); // 2^mstep
         Param.theFactor = originalFactor / myFactor;
 
+/// our point 2
         /* Refinement */
+        fprintf(stdout,"debug 1>>\n");
         Timer_Start("Octor Refinetree");
+        fprintf(stdout,"debug 2>>\n");
         if (Global.myID == 0) {
             fprintf(stdout, "Refining     ");
+            fprintf(stdout,"debug 3>>\n");
             fflush(stdout);
+            printf(stdout,"debug 4>>\n");
         }
         if (octor_refinetree(Global.myOctree, toexpand, setrec) != 0) {
             fprintf(stderr, "Thread %d: mesh_generate: fail to refine octree\n",Global.myID);
             MPI_Abort(MPI_COMM_WORLD, ERROR); exit(1);
         }
+        fprintf(stdout,"debug 5>>\n");
+
+        /////
         MPI_Barrier(comm_solver);
+        fprintf(stdout,"debug 6>>\n");
         tote = octor_getleavescount(Global.myOctree, GLOBAL);
+        fprintf(stdout,"debug 7>>\n");
         mine = octor_getminleavescount(Global.myOctree, GLOBAL);
+        fprintf(stdout,"debug 8>>\n");
         maxe = octor_getmaxleavescount(Global.myOctree, GLOBAL);
+        fprintf(stdout,"debug 9>>\n");
         if (Global.myID == 0) {
             fprintf(stdout, "%11"INT64_FMT" %11"INT64_FMT" %11"INT64_FMT, mine, maxe, tote);
             fflush(stdout);
         }
+        printf(stdout,"debug 10>>\n");
         Timer_Stop("Octor Refinetree");
+        printf(stdout,"debug 11>>\n");
         if (Global.myID == 0) {
             fprintf(stdout, "%11.2f", Timer_Value("Octor Refinetree", 0) - prevtref);
             if (Param.theStepMeshingFactor == 0 ) {
@@ -2199,9 +2213,13 @@ mesh_generate()
             } else {
                 fprintf(stdout, "   %4d %6.2f\n", step, Param.theFactor/ppwl);
             }
+            printf(stdout,"debug 12>>\n");
             prevtref = Timer_Value("Octor Refinetree", 0);
             fflush(stdout);
+            printf(stdout,"debug 13>>\n");
         }
+
+        /////
 
         /* Balancing */
         Timer_Start("Octor Balancetree");
@@ -2256,7 +2274,7 @@ mesh_generate()
         step++;
         fflush(stdout);
         MPI_Barrier(comm_solver);
-    }
+    } //////******************************************************************************************************************
 
     /* Buildings Carving */
     if ( Param.includeBuildings == YES ) {
