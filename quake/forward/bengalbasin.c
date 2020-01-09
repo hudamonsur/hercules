@@ -11,26 +11,28 @@
 cvmpayload_t getlayervalues(layer_params layer, double depth, double maxdepth, double mindepth);
 cvmpayload_t getlayervalues_sedirock(layer_params layer, double depth, double maxdepth, double mindepth);
 // double * getboreholevalues(double inputlat, double inputlong, double depth);
-cvmpayload_t getsurfacevalues(double dlat, double dlong, double diflat, double diflong, double inputlat, double inputlong, double depth, double ** surfaces);
-double getsurfacedepth(double dlat, double dlong, double diflong, double diflat, double east, double north, double ** surfaces, int i);
+cvmpayload_t getsurfacevalues(double dlat, double dlong, double diflat, double diflong, double inputlat, double inputlong, double depth);
+double getsurfacedepth(FILE *fp, double inputlat, double inputlong, double dlat, double dlong, double diflong, double diflat);
+// double getsurfacedepth(double dlat, double dlong, double diflong, double diflat, double east, double north, double ** surfaces, int i);
 // cvmpayload_t getbhvalues(int id, double depth, double confidence);
 // double sum_array(double array[], int size);
 // cvmpayload_t computefinalvalues(cvmpayload_t bh_params, cvmpayload_t surface_params, double bh_confidence);
 // double getbhconfidence(double bh_dist);
 // double getbhdepthconfidence(double max_depth, double depth);
 // double weighted_confidence(double array[], int size);
+//double avg_array(double array, int size);
 
-int bengal_cvm_query(double east_m, double north_m, double depth_m, cvmpayload_t* result, double ** surfaces)
+int bengal_cvm_query(double east_m, double north_m, double depth_m, cvmpayload_t* result)
 {
-    cvmpayload_t temp_result;
-	double dlat = (MAXLAT-MINLAT)/GRIDSTEP;
-	double dlong = (MAXLONG-MINLONG)/GRIDSTEP;
+    // cvmpayload_t temp_result;
+    double dlat = (MAXLAT-MINLAT)/GRIDSTEP;
+    double dlong = (MAXLONG-MINLONG)/GRIDSTEP;
 
-	double inputlat = MINLAT + north_m/(DEGREETODIST);
-	double inputlong = MINLONG + east_m/(DEGREETODIST);
+    double inputlat = MINLAT + north_m/(DEGREETODIST); // input coordinates are given in meters and needs to be converted into degree
+    double inputlong = MINLONG + east_m/(DEGREETODIST);
 
-	double diflat = inputlat-MINLAT;
-	double diflong = inputlong-MINLONG;
+    double diflat = inputlat-MINLAT;
+    double diflong = inputlong-MINLONG;
 
     if (inputlat > MAXLAT) inputlat = MAXLAT;
     if (inputlong > MAXLONG) inputlong = MAXLONG;
@@ -38,10 +40,10 @@ int bengal_cvm_query(double east_m, double north_m, double depth_m, cvmpayload_t
     if(DB==0){
         result->Vp  = 100;
         result->Vs  = 100;
-        result->rho = 100; 
+        result->rho = 100;
     }
     else if(DB==1){
-        cvmpayload_t surface_params = getsurfacevalues(dlat, dlong, diflat, diflong, inputlat, inputlong, depth_m, surfaces);
+        cvmpayload_t surface_params = getsurfacevalues(dlat, dlong, diflat, diflong, inputlat, inputlong, depth_m);
         result->Vp  = surface_params.Vp;
         result->Vs  = surface_params.Vs;
         result->rho = surface_params.rho;
@@ -64,7 +66,7 @@ int bengal_cvm_query(double east_m, double north_m, double depth_m, cvmpayload_t
     //     result->rho = temp_result.rho;
     // }
 
-	return 0;
+    return 0;
 }
 
 // cvmpayload_t computefinalvalues(cvmpayload_t bh_params, cvmpayload_t surface_params, double bh_confidence){
@@ -84,7 +86,7 @@ int bengal_cvm_query(double east_m, double north_m, double depth_m, cvmpayload_t
 // 	return result;
 // }
 
-cvmpayload_t getsurfacevalues(double dlat, double dlong, double diflat, double diflong, double inputlat, double inputlong, double depth, double ** surfaces){
+cvmpayload_t getsurfacevalues(double dlat, double dlong, double diflat, double diflong, double inputlat, double inputlong, double depth){
 
     cvmpayload_t result;
     double values[BIN_COUNT];
@@ -93,7 +95,11 @@ cvmpayload_t getsurfacevalues(double dlat, double dlong, double diflat, double d
 
 // Determining depth values of different surfaces provided
     for(;i<BIN_COUNT;i++){
-        value = getsurfacedepth(dlat, dlong, diflong, diflat, inputlong, inputlat, surfaces, i);
+        FILE *contourFiles;
+        contourFiles = fopen(BIN_NAMES[i], "rb");
+        // value = getsurfacedepth(dlat, dlong, diflong, diflat, inputlong, inputlat, surfaces, i);
+        value = getsurfacedepth(contourFiles, inputlat, inputlong, dlat, dlong, diflong, diflat);
+        fclose(contourFiles);
 //        if(DEBUG==1){printf("%.4f\n", value);}
         values[i] = value;
     }
@@ -151,12 +157,12 @@ cvmpayload_t getsurfacevalues(double dlat, double dlong, double diflat, double d
         }
     }
 
-    // if(DEBUG==1){
-    //     puts("Surface values:");
-    //     printf("%0.4f\n", result.Vs);
-    //     printf("%0.4f\n", result.Vp);
-    //     printf("%0.4f\n", result.rho);
-    // }
+    if(DEBUG==1){
+        puts("Surface values:");
+        printf("%0.4f\n", result.Vs);
+        printf("%0.4f\n", result.Vp);
+        printf("%0.4f\n", result.rho);
+    }
 
     return result;
 
@@ -199,102 +205,180 @@ cvmpayload_t getlayervalues(layer_params layer, double depth, double maxdepth, d
 
 }
 
-cvmpayload_t getlayervalues_sedirock(layer_params layer, double depth, double maxdepth, double mindepth){
+// cvmpayload_t getlayervalues_sedirock(layer_params layer, double depth, double maxdepth, double mindepth){
 
-    cvmpayload_t result;
-    double vs;
-    double density;
-    double vp;
-    double vpft;
-    double age;
-    double expo = 0.1667;
-    // puts("<<<<<<<<<<< values from faust's equation >>>>>>>>");
+//     cvmpayload_t result;
+//     double vs;
+//     double density;
+//     double vp;
+//     double vpft;
+//     double age;
+//     double expo = 0.1667;
+//     // puts("<<<<<<<<<<< values from faust's equation >>>>>>>>");
 
-    if (maxdepth==mindepth){
-        age = layer.minage*1000000;
-        vpft = layer.constantk*(pow(depth*3.28*age,expo));
-        vp = vpft/(3.28*1000);
-        // printf("%0.4f\n", vp);
+//     if (maxdepth==mindepth){
+//         age = layer.minage*1000000;
+//         vpft = layer.constantk*(pow(depth*3.28*age,expo));
+//         vp = vpft/(3.28*1000);
+//         // printf("%0.4f\n", vp);
 
-    }
-    else{
-        age = (layer.minage+((layer.maxage-layer.minage)*(depth-mindepth))/(maxdepth-mindepth))*1000000;
-        vpft = layer.constantk*(pow(depth*3.28*age,expo));
-        vp = vpft/(3.28*1000);
+//     }
+//     else{
+//         age = (layer.minage+((layer.maxage-layer.minage)*(depth-mindepth))/(maxdepth-mindepth))*1000000;
+//         vpft = layer.constantk*(pow(depth*3.28*age,expo));
+//         vp = vpft/(3.28*1000);
         
-    }
-    vs = 0.7858 - 1.2344*vp + 0.7949*(pow(vp,2)) - 0.1238*(pow(vp,3)) + 0.0064*(pow(vp,4));
-    // printf("%0.4f\n", vs);
-    density = 1.6612*vp - 0.4721*(pow(vp,2)) + 0.0671*(pow(vp,3)) - 0.0043*(pow(vp,4)) + 0.000106*(pow(vp,5));
+//     }
+//     vs = 0.7858 - 1.2344*vp + 0.7949*(pow(vp,2)) - 0.1238*(pow(vp,3)) + 0.0064*(pow(vp,4));
+//     // printf("%0.4f\n", vs);
+//     density = 1.6612*vp - 0.4721*(pow(vp,2)) + 0.0671*(pow(vp,3)) - 0.0043*(pow(vp,4)) + 0.000106*(pow(vp,5));
 
-    result.Vs=vs*1000;
-    result.Vp=vp*1000;
-    result.rho=density*1000;
-    return result;
+//     result.Vs=vs*1000;
+//     result.Vp=vp*1000;
+//     result.rho=density*1000;
+//     return result;
 
-}
+// }
 
-double getsurfacedepth(double dlat, double dlong, double diflong, double diflat, double east, double north, double ** surfaces, int i){
+// double getsurfacedepth(double dlat, double dlong, double diflong, double diflat, double east, double north, double ** surfaces, int i){
+
+//  double value;
+//  double val1;
+//  double val2;
+//  double val3;
+//  double val4;
+//  long index;
+//  long index1;
+//  long index2;
+//  long index3;
+//  long index4;
+
+//     /* bilinear interpolation*/
+//     long intervalnumberlongitude = diflong/dlong;
+//     //printf("%d %d\n", intervalnumberlongitude, i);
+//     long intervalnumberlatitude = diflat/dlat;
+//     //printf("%d %d\n", intervalnumberlatitude, i);
+
+//     if (intervalnumberlatitude==0 && intervalnumberlongitude==0){
+//         index = intervalnumberlongitude;
+//         value = surfaces[i][index];
+//         if(DEBUG==1){printf("%f 1>>>>>>>\n", value);};
+//     }
+//     else if (intervalnumberlatitude==0){
+//         index = intervalnumberlongitude;
+//         value = surfaces[i][index];
+//         if(DEBUG==1){printf("2>>>>>>>\n");}
+//     }
+//     else if(intervalnumberlongitude==0){
+//         index = intervalnumberlatitude*2000;
+//         value = surfaces[i][index];
+//         if(DEBUG==1){printf("3>>>>>>>\n");}
+//     }
+//     else if(intervalnumberlatitude==2000 || intervalnumberlongitude==2000){
+//         index = intervalnumberlatitude*2000 + intervalnumberlongitude;
+//         value = surfaces[i][index];
+//         if(DEBUG==1){printf("4>>>>>>>\n");}
+//     }
+//     else {
+//         index1 = intervalnumberlatitude*2000 + intervalnumberlongitude;
+//         val1 = surfaces[i][index1];
+//         index2 = index1 + 2000;
+//         val2 = surfaces[i][index2];
+//         index3 = index2 - 1;
+//         val3 = surfaces[i][index3];
+//         index4 = index1 - 1;
+//         val4 = surfaces[i][index4];
+//         double lat1 = intervalnumberlatitude*dlat+MINLAT;
+//         double lat2 = lat1 + dlat;
+//         double long1 = intervalnumberlongitude*dlong+MINLONG;
+//         double long2 = long1 - dlong;
+
+//         double R1 = ((long2-east)/(long2-long1))*val1 + ((east-long1)/(long2-long1))*val2;
+//         //printf("%.4f %.4f\n", long2, east);
+//         double R2 = ((long2-east)/(long2-long1))*val4 + ((east-long1)/(long2-long1))*val3;
+//         value = ((lat2-north)/(lat2-lat1))*R1 + ((north-lat1)/(lat2-lat1))*R2;
+//     }
+
+//  //printf("%f >>>>>>> %d\n", value, a);
+//  //value = value;
+//  return value;
+// }
+
+double getsurfacedepth(FILE *fp, double inputlat, double inputlong, double dlat, double dlong, double diflong, double diflat){
 
     double value;
     double val1;
     double val2;
     double val3;
     double val4;
-    long index;
-    long index1;
-    long index2;
-    long index3;
-    long index4;
+    long byteval1;
+    long byteval2;
+    long byteval3;
+    long byteval4;
 
-    /* bilinear interpolation*/
-    long intervalnumberlongitude = diflong/dlong;
-    //printf("%d %d\n", intervalnumberlongitude, i);
-    long intervalnumberlatitude = diflat/dlat;
-    //printf("%d %d\n", intervalnumberlatitude, i);
+    if (!fp)
+    {
+        printf("Unable to open file!");
+        return 0;
+    }
 
-    if (intervalnumberlatitude==0 && intervalnumberlongitude==0){
-        index = intervalnumberlongitude;
-        value = surfaces[i][index];
-        // if(DEBUG==1){printf("%f 1>>>>>>>\n", value);};
-    }
-    else if (intervalnumberlatitude==0){
-        index = intervalnumberlongitude;
-        value = surfaces[i][index];
-        // if(DEBUG==1){printf("2>>>>>>>\n");}
-    }
-    else if(intervalnumberlongitude==0){
-        index = intervalnumberlatitude*2000;
-        value = surfaces[i][index];
-        // if(DEBUG==1){printf("3>>>>>>>\n");}
-    }
-    else if(intervalnumberlatitude==2000 || intervalnumberlongitude==2000){
-        index = intervalnumberlatitude*2000 + intervalnumberlongitude;
-        value = surfaces[i][index];
-        // if(DEBUG==1){printf("4>>>>>>>\n");}
-    }
     else {
-        index1 = intervalnumberlatitude*2000 + intervalnumberlongitude;
-        val1 = surfaces[i][index1];
-        index2 = index1 + 2000;
-        val2 = surfaces[i][index2];
-        index3 = index2 - 1;
-        val3 = surfaces[i][index3];
-        index4 = index1 - 1;
-        val4 = surfaces[i][index4];
-        double lat1 = intervalnumberlatitude*dlat+MINLAT;
-        double lat2 = lat1 + dlat;
-        double long1 = intervalnumberlongitude*dlong+MINLONG;
-        double long2 = long1 - dlong;
+        /* bilinear interpolation*/
+        long intervalnumberlongitude = diflong/dlong;
+        long intervalnumberlatitude = diflat/dlat;
 
-        double R1 = ((long2-east)/(long2-long1))*val1 + ((east-long1)/(long2-long1))*val2;
-        //printf("%.4f %.4f\n", long2, east);
-        double R2 = ((long2-east)/(long2-long1))*val4 + ((east-long1)/(long2-long1))*val3;
-        value = ((lat2-north)/(lat2-lat1))*R1 + ((north-lat1)/(lat2-lat1))*R2;
+        if (intervalnumberlatitude==0 && intervalnumberlongitude==0){
+            byteval1 = intervalnumberlongitude*8 + 8;
+            fseek(fp, byteval1, SEEK_SET);
+            fread(&value, 8, 1, fp);
+        }
+
+        else if (intervalnumberlatitude==0){
+            byteval1 = intervalnumberlongitude*8;
+            fseek(fp, byteval1, SEEK_SET);
+            fread(&value, 8, 1, fp);
+        }
+
+        else if(intervalnumberlongitude==0){
+            byteval1 = intervalnumberlatitude*16000 + 8;
+            fseek(fp, byteval1, SEEK_SET);
+            fread(&value, 8, 1, fp);
+        }
+
+        else if(intervalnumberlatitude==2000 || intervalnumberlongitude==2000){
+            byteval1 = intervalnumberlatitude*16000 + intervalnumberlongitude*8;
+            fseek(fp, byteval1, SEEK_SET);
+            fread(&value, 8, 1, fp);
+        }
+
+        else {
+            byteval1 = intervalnumberlatitude*16000 + intervalnumberlongitude*8;
+            byteval2 = byteval1 + 16000;
+            byteval3 = byteval2 - 8;
+            byteval4 = byteval1 - 8;
+            double lat1 = intervalnumberlatitude*dlat+MINLAT;
+            double lat2 = lat1 + dlat;
+            double long1 = intervalnumberlongitude*dlong+MINLONG;
+            double long2 = long1 - dlong;
+
+            /* seeking values */
+            fseek(fp, byteval1, SEEK_SET);
+            fread(&val1, 8, 1, fp);
+            fseek(fp, byteval2, SEEK_SET);
+            fread(&val2, 8, 1, fp);
+            fseek(fp, byteval3, SEEK_SET);
+            fread(&val3, 8, 1, fp);
+            fseek(fp, byteval4, SEEK_SET);
+            fread(&val4, 8, 1, fp);
+
+
+            double R1 = ((long2-inputlong)/(long2-long1))*val1 + ((inputlong-long1)/(long2-long1))*val2;
+            double R2 = ((long2-inputlong)/(long2-long1))*val4 + ((inputlong-long1)/(long2-long1))*val3;
+
+            value = ((lat2-inputlat)/(lat2-lat1))*R1 + ((inputlat-lat1)/(lat2-lat1))*R2;
+        }
     }
-
-    //printf("%f >>>>>>> %d\n", value, a);
-    //value = value;
+    fseek(fp, 0, SEEK_SET); // to reset the pointer to the start of the file.
     return value;
 }
 

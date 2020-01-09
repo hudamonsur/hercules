@@ -108,13 +108,13 @@ void initiate_layers(){
 //     fp_bengalbasin = fopen(BHNAMES_LIST,"r");
 //     int k=0;
 //     if (!fp_bengalbasin)
-//     {
-//         printf("Unable to open borehole list!");
-//     }
-//     else {
-//         while(!feof(fp_bengalbasin)) {
-//             char str[60];
-//             if( fgets (str, 60, fp_bengalbasin)!=NULL ) {
+//  {
+//      printf("Unable to open borehole list!");
+//  }
+//  else {
+//      while(!feof(fp_bengalbasin)) {
+//          char str[60];
+//          if( fgets (str, 60, fp_bengalbasin)!=NULL ) {
 //             /* writing content to stdout */
 // //                if(str[0]=='\n'){
 // //                    linecount++;
@@ -136,10 +136,10 @@ void initiate_layers(){
 //                 strcat(borehole_name, str1);
 //                 BOREHOLE_INFO[k].bh = fopen(borehole_name,"r");
 //                 k++;
-//             }
-//         }
-//     }
-//     fclose(fp_bengalbasin);
+//          }
+//      }
+//  }
+//  fclose(fp_bengalbasin);
 
 // }
 // void initiate_globals(){
@@ -197,8 +197,8 @@ void initiate_layers(){
 //LAYERS[7].minrho = 3300; // density of the Mantle in kg/m3
 //LAYERS[7].maxrho = 3300;
 //LAYERS[7].vpvsratio = 1.7; // ratio between P-wave and S-wave velocity of the Mantle
-FILE* fp_bengalbasin;
-FILE* fp_borehole;
+// FILE* fp_bengalbasin;
+// FILE* fp_borehole;
 // int DEBUG = 0;
 int DB = 1;
 
