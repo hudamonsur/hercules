@@ -11,7 +11,7 @@
 cvmpayload_t getlayervalues(layer_params layer, double depth, double maxdepth, double mindepth);
 cvmpayload_t getlayervalues_sedirock(layer_params layer, double depth, double maxdepth, double mindepth);
 // double * getboreholevalues(double inputlat, double inputlong, double depth);
-cvmpayload_t getsurfacevalues(double dlat, double dlong, double diflat, double diflong, double inputlat, double inputlong, double depth);
+cvmpayload_t getsurfacevalues(FILE** fpArray, double dlat, double dlong, double diflat, double diflong, double inputlat, double inputlong, double depth);
 double getsurfacedepth(FILE *fp, double inputlat, double inputlong, double dlat, double dlong, double diflong, double diflat);
 // double getsurfacedepth(double dlat, double dlong, double diflong, double diflat, double east, double north, double ** surfaces, int i);
 // cvmpayload_t getbhvalues(int id, double depth, double confidence);
@@ -22,7 +22,7 @@ double getsurfacedepth(FILE *fp, double inputlat, double inputlong, double dlat,
 // double weighted_confidence(double array[], int size);
 //double avg_array(double array, int size);
 
-int bengal_cvm_query(double east_m, double north_m, double depth_m, cvmpayload_t* result)
+int bengal_cvm_query(FILE** fpArray, double east_m, double north_m, double depth_m, cvmpayload_t* result)
 {
     // cvmpayload_t temp_result;
     double dlat = (MAXLAT-MINLAT)/GRIDSTEP;
@@ -43,7 +43,7 @@ int bengal_cvm_query(double east_m, double north_m, double depth_m, cvmpayload_t
         result->rho = 100;
     }
     else if(DB==1){
-        cvmpayload_t surface_params = getsurfacevalues(dlat, dlong, diflat, diflong, inputlat, inputlong, depth_m);
+        cvmpayload_t surface_params = getsurfacevalues(fpArray, dlat, dlong, diflat, diflong, inputlat, inputlong, depth_m);
         result->Vp  = surface_params.Vp;
         result->Vs  = surface_params.Vs;
         result->rho = surface_params.rho;
@@ -86,7 +86,7 @@ int bengal_cvm_query(double east_m, double north_m, double depth_m, cvmpayload_t
 // 	return result;
 // }
 
-cvmpayload_t getsurfacevalues(double dlat, double dlong, double diflat, double diflong, double inputlat, double inputlong, double depth){
+cvmpayload_t getsurfacevalues(FILE** fpArray, double dlat, double dlong, double diflat, double diflong, double inputlat, double inputlong, double depth){
 
     cvmpayload_t result;
     double values[BIN_COUNT];
@@ -95,11 +95,11 @@ cvmpayload_t getsurfacevalues(double dlat, double dlong, double diflat, double d
 
 // Determining depth values of different surfaces provided
     for(;i<BIN_COUNT;i++){
-        FILE *contourFiles;
-        contourFiles = fopen(BIN_NAMES[i], "rb");
+        // FILE *contourFiles;
+        // contourFiles = fopen(BIN_NAMES[i], "rb");
         // value = getsurfacedepth(dlat, dlong, diflong, diflat, inputlong, inputlat, surfaces, i);
-        value = getsurfacedepth(contourFiles, inputlat, inputlong, dlat, dlong, diflong, diflat);
-        fclose(contourFiles);
+        value = getsurfacedepth(fpArray[i], inputlat, inputlong, dlat, dlong, diflong, diflat);
+        // fclose(contourFiles);
 //        if(DEBUG==1){printf("%.4f\n", value);}
         values[i] = value;
     }
