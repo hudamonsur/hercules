@@ -7880,7 +7880,7 @@ int main( int argc, char** argv )
 
         initiate_layers();
             int i;
-            // int j;
+            int j;
         const char * binFileNames[] = {
             "depth_sediment.bin",
             "depth_dupitila.bin",
