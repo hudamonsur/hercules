@@ -1,4 +1,5 @@
 user.mk
+systemdef.mk
 rundir
 
 .DS_Store
@@ -12,7 +13,6 @@ quake/forward/psolve
 quake/forward/q4showmeta
 quake/forward/qmesh
 quake/forward/single_query
-systemdef.mk
 
 .settings
 .cproject
