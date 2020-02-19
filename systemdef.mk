@@ -164,8 +164,8 @@ ifeq ($(SYSTEM), HOOKE)
 endif
 
 ifeq ($(SYSTEM), MACBOOK)
-	MPI_DIR      = /usr/
-        MPI_INCLUDE  = $(MPI_DIR)/include/openmpi/ompi/mpi/cxx
+	MPI_DIR      = /opt/openmpi/
+        MPI_INCLUDE  = $(MPI_DIR)/include
         CC           = $(MPI_DIR)/bin/mpicc
         CXX          = $(MPI_DIR)/bin/mpicxx
         LD           = $(MPI_DIR)/bin/mpicxx
