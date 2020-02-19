@@ -276,8 +276,8 @@ static struct Param_t {
     double   theQAlpha;
     double   theQBeta;
     noyesflag_t  useBengalBasin;
-    // double** surfaces;
-    FILE**    theBengalBasinFP;
+    double** surfaces;
+    // FILE**    theBengalBasinFP;
 } Param = {
     .FourDOutFp = NULL,
     .theMonitorFileFp = NULL,
@@ -1519,8 +1519,8 @@ setrec( octant_t* leaf, double ticksize, void* data )
                 if ( (Param.useProfile == NO) && (Param.useBengalBasin == NO) ) {
                     res = cvm_query( Global.theCVMEp, y_m, x_m, z_m, &g_props );
                 } else if (Param.useBengalBasin == YES) {
-                    res = bengal_cvm_query(Param.theBengalBasinFP, y_m, x_m, z_m, &g_props);
-                    // res = bengal_cvm_query(y_m, x_m, z_m, &g_props, Param.surfaces);
+                    // res = bengal_cvm_query(Param.theBengalBasinFP, y_m, x_m, z_m, &g_props);
+                    res = bengal_cvm_query(y_m, x_m, z_m, &g_props, Param.surfaces);
                     // res = bengal_cvm_query(y_m, x_m, z_m, &g_props);
                 } else {
                     res = profile_query(z_m, &g_props);
@@ -7490,8 +7490,8 @@ mesh_correct_properties( etree_t* cvm )
                     if ( (Param.useProfile == NO) && (Param.useBengalBasin == NO) ) {
                         res = cvm_query( Global.theCVMEp, east_m, north_m, depth_m, &g_props );
                     } else if ( Param.useBengalBasin == YES ) {
-                        res = bengal_cvm_query(Param.theBengalBasinFP, east_m, north_m, depth_m, &g_props);
-                        // res = bengal_cvm_query(east_m, north_m, depth_m, &g_props, Param.surfaces);
+                        // res = bengal_cvm_query(Param.theBengalBasinFP, east_m, north_m, depth_m, &g_props);
+                        res = bengal_cvm_query(east_m, north_m, depth_m, &g_props, Param.surfaces);
                         // res = bengal_cvm_query(east_m, north_m, depth_m, &g_props);
                     } else {
                         res = profile_query(depth_m, &g_props);
@@ -7891,39 +7891,39 @@ int main( int argc, char** argv )
             "depth_moho.bin",
         };
 
-        int binCount = 8;
-        Param.theBengalBasinFP = malloc( (binCount-1) * sizeof(FILE*) );
-        for( i=0; i<binCount; i++){
-            Param.theBengalBasinFP[i] = fopen(binFileNames[i], "rb");
-            if (Param.theBengalBasinFP[i] == NULL){
-                fprintf( stderr, "Unable to open one of the basin files!\n");
-                MPI_Abort(MPI_COMM_WORLD, ERROR );
-                exit( 1 );
+        // int binCount = 8;
+        // Param.theBengalBasinFP = malloc( (binCount-1) * sizeof(FILE*) );
+        // for( i=0; i<binCount; i++){
+        //     Param.theBengalBasinFP[i] = fopen(binFileNames[i], "rb");
+        //     if (Param.theBengalBasinFP[i] == NULL){
+        //         fprintf( stderr, "Unable to open one of the basin files!\n");
+        //         MPI_Abort(MPI_COMM_WORLD, ERROR );
+        //         exit( 1 );
+        //     };
+        // };
+
+            int colcount = 2000*2000;
+            int rowcount = 7;
+            Param.surfaces = (double **)malloc(rowcount * sizeof(double *));
+
+            for(i=0;i<rowcount;i++){
+                Param.surfaces[i] = (double *)malloc(colcount * sizeof(double));
             };
-        };
 
-            // int colcount = 2000*2000;
-            // int rowcount = 7;
-            // Param.surfaces = (double **)malloc(rowcount * sizeof(double *));
-
-            // for(i=0;i<rowcount;i++){
-            //     Param.surfaces[i] = (double *)malloc(colcount * sizeof(double));
-            // };
-
-            // //printf("debug 1 >>");
-            // for(i=0;i<rowcount;i++){
-            //     FILE *contourFiles;
-            //     contourFiles = fopen(binFileNames[i], "rb");
-            //     if (!contourFiles){
-            //         printf("Unable to open binary files!");
-            //         MPI_Abort(MPI_COMM_WORLD, ERROR );
-            //         exit( 1 );
-            //     }
-            //     for(j=0;j<colcount;j++){
-            //         fread(&Param.surfaces[i][j], sizeof(double), 1, contourFiles);
-            //     }
-            //     fclose(contourFiles);
-            // }
+            //printf("debug 1 >>");
+            for(i=0;i<rowcount;i++){
+                FILE *contourFiles;
+                contourFiles = fopen(binFileNames[i], "rb");
+                if (!contourFiles){
+                    printf("Unable to open binary files!");
+                    MPI_Abort(MPI_COMM_WORLD, ERROR );
+                    exit( 1 );
+                }
+                for(j=0;j<colcount;j++){
+                    fread(&Param.surfaces[i][j], sizeof(double), 1, contourFiles);
+                }
+                fclose(contourFiles);
+            }
         // Param.theBengalBasinFP = fopen("inputfiles/bengalbasindepth.bin","rb");
         // if ( Param.theBengalBasinFP == NULL ) {
         //     fprintf( stderr, "Unable to open Bengal Basin file!\n");
@@ -8102,7 +8102,7 @@ int main( int argc, char** argv )
 
     MPI_Finalize();
 
-    // free(Param.surfaces);
+    free(Param.surfaces);
 
     return 0;
 }

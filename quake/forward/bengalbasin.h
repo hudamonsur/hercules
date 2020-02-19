@@ -10,6 +10,6 @@
 
 #include "cvm.h"
 
-int bengal_cvm_query(FILE** fpArray, double east_m, double north_m, double depth_m, cvmpayload_t* result);
+int bengal_cvm_query(double east_m, double north_m, double depth_m, cvmpayload_t* result, double ** surfaces);
 
 #endif /* BENGALBASIN_H_ */
